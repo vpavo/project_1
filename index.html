@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cosmic Facts</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #0a0a1a;
+      color: #e0e0ff;
+      font-family: 'Georgia', serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Starfield */
+    .stars {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .star {
+      position: absolute;
+      border-radius: 50%;
+      background: white;
+      animation: twinkle var(--dur) ease-in-out infinite;
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.2; transform: scale(1); }
+      50%       { opacity: 1;   transform: scale(1.4); }
+    }
+
+    /* Shooting star */
+    .shoot {
+      position: fixed;
+      top: -2px;
+      left: -200px;
+      width: 180px;
+      height: 2px;
+      background: linear-gradient(to right, transparent, white);
+      animation: shoot 6s linear infinite;
+      opacity: 0;
+      z-index: 0;
+    }
+
+    @keyframes shoot {
+      0%   { transform: translate(0, 0) rotate(25deg);   opacity: 0; }
+      5%   { opacity: 1; }
+      40%  { opacity: 0.6; }
+      60%  { transform: translate(120vw, 40vh) rotate(25deg); opacity: 0; }
+      100% { transform: translate(120vw, 40vh) rotate(25deg); opacity: 0; }
+    }
+
+    /* Main card */
+    .card {
+      position: relative;
+      z-index: 1;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(150, 150, 255, 0.25);
+      border-radius: 20px;
+      padding: 50px 40px;
+      max-width: 680px;
+      width: 90%;
+      text-align: center;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 0 60px rgba(100, 80, 255, 0.15);
+    }
+
+    .planet {
+      font-size: 64px;
+      display: block;
+      margin-bottom: 12px;
+      animation: float 4s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-12px); }
+    }
+
+    h1 {
+      font-size: 2rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, #a78bfa, #38bdf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+    }
+
+    .tagline {
+      font-size: 0.85rem;
+      color: #7878aa;
+      letter-spacing: 0.06em;
+      margin-bottom: 40px;
+    }
+
+    .fact-box {
+      background: rgba(100, 80, 255, 0.08);
+      border: 1px solid rgba(100, 80, 255, 0.2);
+      border-radius: 12px;
+      padding: 28px 24px;
+      margin-bottom: 32px;
+      min-height: 110px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #fact-text {
+      font-size: 1.1rem;
+      line-height: 1.7;
+      color: #ccd0ff;
+      transition: opacity 0.4s ease;
+    }
+
+    #fact-text.fade {
+      opacity: 0;
+    }
+
+    .btn {
+      background: linear-gradient(135deg, #6d28d9, #0ea5e9);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      padding: 14px 40px;
+      font-size: 1rem;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      box-shadow: 0 4px 24px rgba(109, 40, 217, 0.4);
+    }
+
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 32px rgba(109, 40, 217, 0.55);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .counter {
+      margin-top: 18px;
+      font-size: 0.8rem;
+      color: #55558a;
+      letter-spacing: 0.05em;
+    }
+
+    .counter span {
+      color: #a78bfa;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="stars" id="stars"></div>
+  <div class="shoot"></div>
+
+  <div class="card">
+    <em class="planet" id="planet">🪐</em>
+    <h1>Cosmic Facts</h1>
+    <p class="tagline">One mind-bending space fact at a time</p>
+
+    <div class="fact-box">
+      <p id="fact-text">Loading a fact from the cosmos...</p>
+    </div>
+
+    <button class="btn" onclick="newFact()">Explore Another &rarr;</button>
+    <p class="counter">Fact <span id="count">1</span> of <span id="total"></span></p>
+  </div>
+
+  <script>
+    const facts = [
+      { text: "A day on Venus is longer than a year on Venus. It takes 243 Earth days to rotate once, but only 225 Earth days to orbit the Sun.", icon: "🌑" },
+      { text: "Neutron stars are so dense that a teaspoon of their material would weigh about 10 million tons on Earth.", icon: "⭐" },
+      { text: "The Milky Way galaxy is estimated to contain between 100 and 400 billion stars — and there are more galaxies in the observable universe than grains of sand on all of Earth's beaches.", icon: "🌌" },
+      { text: "Sound cannot travel through space. Space is a near-perfect vacuum, so explosions and collisions happen in complete silence.", icon: "🔇" },
+      { text: "One million Earths could fit inside the Sun, yet the Sun is considered an average-sized star compared to others in the galaxy.", icon: "☀️" },
+      { text: "The footprints left on the Moon by Apollo astronauts will likely remain there for at least 10 million years, as there is no wind or rain to erode them.", icon: "🌙" },
+      { text: "Saturn's rings are made mostly of ice and rock, and they are incredibly thin — only about 10 meters thick in some places, despite spanning 282,000 km in diameter.", icon: "🪐" },
+      { text: "There is a massive reservoir of water floating in space — 140 trillion times the amount of water in all of Earth's oceans — orbiting a quasar 12 billion light-years away.", icon: "💧" },
+      { text: "Light from the Sun takes about 8 minutes and 20 seconds to reach Earth. Light from the nearest star system, Alpha Centauri, takes over 4 years.", icon: "🔭" },
+      { text: "A year on Mercury is just 88 Earth days, but a single day there (one full rotation) takes 59 Earth days.", icon: "🪨" },
+      { text: "The largest known star, UY Scuti, is so enormous that if placed at the center of our Solar System, its surface would extend beyond the orbit of Jupiter.", icon: "🌟" },
+      { text: "Black holes don't actually suck things in — they have the same gravitational pull as any other mass of the same size. Objects fall in because they get too close.", icon: "🕳️" },
+    ];
+
+    let current = -1;
+    let count = 0;
+
+    document.getElementById('total').textContent = facts.length;
+
+    function newFact() {
+      let next;
+      do { next = Math.floor(Math.random() * facts.length); } while (next === current && facts.length > 1);
+      current = next;
+      count++;
+
+      const textEl = document.getElementById('fact-text');
+      const planetEl = document.getElementById('planet');
+      const countEl = document.getElementById('count');
+
+      textEl.classList.add('fade');
+      setTimeout(() => {
+        textEl.textContent = facts[current].text;
+        planetEl.textContent = facts[current].icon;
+        countEl.textContent = count;
+        textEl.classList.remove('fade');
+      }, 400);
+    }
+
+    // Show first fact immediately
+    newFact();
+    count = 1; // reset display count
+    document.getElementById('count').textContent = 1;
+
+    // Generate stars
+    const container = document.getElementById('stars');
+    for (let i = 0; i < 160; i++) {
+      const s = document.createElement('div');
+      s.className = 'star';
+      const size = Math.random() * 2.5 + 0.5;
+      s.style.cssText = `
+        width: ${size}px; height: ${size}px;
+        top: ${Math.random() * 100}%;
+        left: ${Math.random() * 100}%;
+        --dur: ${Math.random() * 3 + 2}s;
+        animation-delay: ${Math.random() * 4}s;
+      `;
+      container.appendChild(s);
+    }
+  </script>
+</body>
+</html>
